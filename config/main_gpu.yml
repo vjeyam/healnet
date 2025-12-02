@@ -1,11 +1,13 @@
-data_path: /net/archive/export/tcga
-tcga_path: /net/archive/export/tcga/tcga
-gdc_client: healnet/gdc-client
+data_path: /scrfs/storage/dgnystro/home/healnet/data
+tcga_path: /scrfs/storage/dgnystro/home/healnet/data/tcga
+gdc_client: gdc-client
 log_path: healnet/logs
 seed: 1
 hyperparams: config/best_hyperparams.yml
+patch_encoder: resnet50 # options: resnet50, vit, phik
+patch_encoder_checkpoint:
 
-dataset: kirp #  [blca, brca, ucec, kirp]
+dataset: blca #  [blca, brca, ucec, kirp]
 model: healnet # [fcnn, healnet, healnet_early, mcat]
 
 explainer: False

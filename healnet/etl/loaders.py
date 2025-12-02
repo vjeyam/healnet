@@ -91,8 +91,22 @@ class TCGADataset(Dataset):
         self.raw_path = Path(config.tcga_path).joinpath(f"wsi/{dataset}")
         prep_path = Path(config.tcga_path).joinpath(f"wsi/{dataset}_preprocessed_level{level}")
         self.prep_path = prep_path
-        # create patch feature directory for first-time run
-        os.makedirs(self.prep_path.joinpath("patch_features"), exist_ok=True)
+        self.patch_encoder = getattr(config, "patch_encoder", "resnet50").lower()
+        # determine patch feature directory
+        default_feat_dir = self.prep_path.joinpath("patch_features")
+        alt_feat_dir = self.prep_path.joinpath(f"patch_features_{self.patch_encoder}")
+        if self.patch_encoder == "resnet50":
+            self.patch_feature_dir = default_feat_dir
+        elif alt_feat_dir.exists():
+            self.patch_feature_dir = alt_feat_dir
+        else:
+            # fallback to default if encoder-specific dir missing
+            self.patch_feature_dir = default_feat_dir
+            print(
+                f"[WARN] Patch features for encoder '{self.patch_encoder}' not found. "
+                f"Falling back to {default_feat_dir}."
+            )
+        os.makedirs(self.patch_feature_dir, exist_ok=True)
         self.slide_ids = [slide_id.rsplit(".", 1)[0] for slide_id in os.listdir(prep_path.joinpath("patches"))]
 
 
@@ -388,7 +402,7 @@ class TCGADataset(Dataset):
         Returns:
             torch.Tensor: Patch features
         """
-        load_path = self.prep_path.joinpath(f"patch_features/{slide_id}.pt")
+        load_path = self.patch_feature_dir.joinpath(f"{slide_id}.pt")
         with open(load_path, "rb") as file:
             patch_features = torch.load(file, weights_only=True)
         patch_features = patch_features.permute(1, 0)

@@ -1,0 +1,24 @@
+To add the ViT (and other) patch encoders we touched these core files:
+
+healnet/encoders/patch.py:
+- Now only downloads the GDC WSIs, flattens the WSI directory,
+  run CLAM's create_patches_fp.py, and outputs the .h5 patch
+  coordinate files
+
+healnet/etl/preprocess_hibou.py:
+- Preprocess WSI images using CellViT-Hibou-L patch embeddings
+  similar to both preprocess_resnet.py and preprocess_vit.py
+- Uses API token near top of the page (can be updated later)
+
+healnet/etl/preprocess_vit.py:
+- Updated build_vit_extractor function to return 3 like
+  preprocess_hibou.py and preprocess_resnet.py
+
+healnet/encoders/patch.py (new module under healnet/encoders/):
+- Houses build_patch_encoder with ResNet50, ViT-B/16, and the HuggingFace
+  PHIK (owkin/phikon) backbone.
+- Handles transforms and output dims for each encoder.
+
+README.md and commands.txt:
+- Document the new encoder options and their CLI usage
+  (additional pip install for PHIK, etc.).
